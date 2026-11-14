@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import { View, Text, ScrollView, Pressable } from "react-native";
 import { useLocalSearchParams, router } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -9,11 +9,11 @@ import ProductPrice from "@/components/products/ProductPrice";
 import ProductVariantPicker from "@/components/products/ProductVariantPicker";
 import ProductQuantitySelector from "@/components/products/ProductQuantitySelector";
 import ProductPurchaseBar from "@/components/products/ProductPurchaseBar";
-import { PRODUCTS } from "@/constants/products";
 import type { SelectedVariants } from "@/types/product";
 import {
   useAppDispatch,
   useAppSelector,
+  selectProductById,
   selectIsInWishlist,
   selectIsInCart,
   selectCartTotalCount,
@@ -28,12 +28,10 @@ export default function ProductDetailScreen() {
   const { id } = useLocalSearchParams<"/products/[id]">();
   const dispatch = useAppDispatch();
 
-  const product = useMemo(() => {
-    if (!id || id === "index") return null;
-    return PRODUCTS.find((p) => p.id === id) ?? null;
-  }, [id]);
+  const rawId = Array.isArray(id) ? id[0] : id;
+  const productId = rawId && rawId !== "index" ? rawId : "";
+  const product = useAppSelector(selectProductById(productId));
 
-  const productId = product?.id ?? (typeof id === "string" && id !== "index" ? id : "");
   const isWishlisted = useAppSelector(selectIsInWishlist(productId));
   const isInCart = useAppSelector(selectIsInCart(productId));
   const cartCount = useAppSelector(selectCartTotalCount);
