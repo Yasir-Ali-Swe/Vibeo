@@ -10,6 +10,7 @@ import {
   Moon,
   Sun,
   Pencil,
+  LayoutDashboard,
 } from "lucide-react-native";
 
 import AccountMenuItem from "@/components/account/AccountMenuItem";
@@ -18,20 +19,15 @@ import AccountStat from "@/components/account/AccountStat";
 import ThemeOption from "@/components/account/ThemeOption";
 import {
   useAppSelector,
-  selectTotalOrdersCount,
-  selectActiveOrdersCount,
-  selectCompletedOrdersCount,
+  selectIsAdmin,
+  selectCurrentUser,
+  selectCustomerTotalOrdersCount,
+  selectCustomerActiveOrdersCount,
+  selectCustomerCompletedOrdersCount,
   selectUnreadNotificationsCount,
 } from "@/store";
 import { useTheme, radius } from "@/theme";
 import { withAlpha } from "@/utils/color";
-
-// TODO: replace with your real user data (store / API)
-const USER = {
-  name: "Yasir Ali",
-  phone: "+92 300 1234567",
-  photo: null as string | null,
-};
 
 function getInitials(name: string): string {
   return name
@@ -46,9 +42,12 @@ export default function Account() {
   const insets = useSafeAreaInsets();
   const { colors } = useTheme();
 
-  const totalOrders = useAppSelector(selectTotalOrdersCount);
-  const activeOrders = useAppSelector(selectActiveOrdersCount);
-  const completedOrders = useAppSelector(selectCompletedOrdersCount);
+  const isAdmin = useAppSelector(selectIsAdmin);
+  const currentUser = useAppSelector(selectCurrentUser);
+
+  const totalOrders = useAppSelector(selectCustomerTotalOrdersCount(currentUser.id));
+  const activeOrders = useAppSelector(selectCustomerActiveOrdersCount(currentUser.id));
+  const completedOrders = useAppSelector(selectCustomerCompletedOrdersCount(currentUser.id));
   const unreadNotifications = useAppSelector(selectUnreadNotificationsCount);
 
   return (
@@ -116,13 +115,13 @@ export default function Account() {
                   backgroundColor: colors.surface.elevated,
                 }}
               >
-                {USER.photo ? (
+                {(currentUser.photo || currentUser.avatarUrl) ? (
                   <Image
-                    source={{ uri: USER.photo }}
+                    source={{ uri: (currentUser.photo || currentUser.avatarUrl)! }}
                     style={{ width: "100%", height: "100%" }}
                     contentFit="cover"
                   />
-                ) : getInitials(USER.name) ? (
+                ) : getInitials(currentUser.name) ? (
                   <Text
                     style={{
                       color: colors.foreground.DEFAULT,
@@ -130,7 +129,7 @@ export default function Account() {
                       fontWeight: "800",
                     }}
                   >
-                    {getInitials(USER.name)}
+                    {getInitials(currentUser.name)}
                   </Text>
                 ) : (
                   <User size={28} color={colors.muted.subtle} strokeWidth={1.75} />
@@ -148,13 +147,13 @@ export default function Account() {
                   letterSpacing: -0.3,
                 }}
               >
-                {USER.name}
+                {currentUser.name}
               </Text>
               <Text
                 numberOfLines={1}
                 style={{ color: colors.muted.foreground, fontSize: 13, marginTop: 4 }}
               >
-                {USER.phone}
+                {currentUser.phone}
               </Text>
             </View>
           </View>
@@ -234,6 +233,19 @@ export default function Account() {
           isLast
         />
       </AccountSection>
+
+      {/* Administration */}
+      {isAdmin && (
+        <AccountSection title="Administration">
+          <AccountMenuItem
+            icon={LayoutDashboard}
+            title="Admin Dashboard"
+            subtitle="Overview, catalog & orders"
+            onPress={() => router.push("/admin" as any)}
+            isLast
+          />
+        </AccountSection>
+      )}
 
       {/* Appearance */}
       <AccountSection title="Appearance">
