@@ -1,19 +1,20 @@
 import { View, Text, Image, Pressable } from "react-native";
 import { ChevronRight, Image as ImageIcon } from "lucide-react-native";
-import { useState } from "react";
+import { useState, memo } from "react";
 import type { ProductSearchSuggestion } from "@/types/product";
 import { formatPrice } from "@/utils/format";
-import { colors } from "@/theme";
+import { useTheme } from "@/theme";
 
 interface SearchSuggestionItemProps {
   item: ProductSearchSuggestion;
   onPress: (item: ProductSearchSuggestion) => void;
 }
 
-export default function SearchSuggestionItem({
+function SearchSuggestionItem({
   item,
   onPress,
 }: SearchSuggestionItemProps) {
+  const { colors } = useTheme();
   const [imageFailed, setImageFailed] = useState(false);
 
   return (
@@ -24,7 +25,7 @@ export default function SearchSuggestionItem({
       accessibilityLabel={`View ${item.name}`}
     >
       {/* Product Thumbnail */}
-      <View className="w-14 h-14 rounded-xl bg-surface border border-border overflow-hidden items-center justify-center mr-3">
+      <View className="w-14 h-14 rounded-sm bg-surface border border-border overflow-hidden items-center justify-center mr-3">
         {item.image && !imageFailed ? (
           <Image
             source={{ uri: item.image }}
@@ -63,4 +64,6 @@ export default function SearchSuggestionItem({
     </Pressable>
   );
 }
+
+export default memo(SearchSuggestionItem);
 
