@@ -5,7 +5,7 @@ import { Minus, Plus, Trash2 } from "lucide-react-native";
 import type { CartItemProps } from "@/types/cart";
 import { formatPrice } from "@/utils/format";
 import { useTheme, radius } from "@/theme";
-import { PRODUCTS } from "@/constants/products";
+import { useAppSelector, selectProductById } from "@/store";
 
 function CartItem({
   item,
@@ -15,7 +15,7 @@ function CartItem({
   const { colors } = useTheme();
 
   const baseProductId = item.id.split("::")[0];
-  const catalogProduct = PRODUCTS.find((p) => p.id === baseProductId);
+  const catalogProduct = useAppSelector(selectProductById(baseProductId));
   const imageUri =
     item.image ||
     item.images?.[0] ||
