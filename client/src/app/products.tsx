@@ -6,8 +6,8 @@ import { Search, ArrowLeft, PackageOpen } from "lucide-react-native";
 
 import ProductCategoryTabs from "@/components/products/ProductCategoryTabs";
 import ProductCard from "@/components/products/ProductCard";
-import { PRODUCTS } from "@/constants/products";
 import { CATEGORIES } from "@/constants/categories";
+import { useAppSelector, selectAllProducts } from "@/store";
 import { useTheme } from "@/theme";
 import type { Product } from "@/types/product";
 export default function ProductsScreen() {
@@ -37,18 +37,20 @@ export default function ProductsScreen() {
     return "all";
   }, [collectionParam]);
 
+  const allProducts = useAppSelector(selectAllProducts);
+
   // Determine base products from the active collection scope
   const baseCollectionProducts = useMemo(() => {
     switch (activeCollection) {
       case "featured":
-        return PRODUCTS.filter((p) => p.isFeatured);
+        return allProducts.filter((p) => p.isFeatured);
       case "new-arrivals":
-        return PRODUCTS.filter((p) => p.isNewArrival);
+        return allProducts.filter((p) => p.isNewArrival);
       case "all":
       default:
-        return PRODUCTS;
+        return allProducts;
     }
-  }, [activeCollection]);
+  }, [activeCollection, allProducts]);
 
   // Determine initial category from route parameters
   const initialCategoryId = useMemo(() => {
