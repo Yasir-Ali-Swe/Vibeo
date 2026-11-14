@@ -1,10 +1,6 @@
 import { createSlice, type PayloadAction } from "@reduxjs/toolkit";
-import type { WishlistProduct } from "@/types/wishlist";
-import type { RootState } from "./index";
-
-export interface WishlistState {
-  items: WishlistProduct[];
-}
+import type { WishlistProduct, WishlistState } from "@/types/wishlist";
+import { deleteProduct } from "./productsSlice";
 
 const initialState: WishlistState = {
   items: [
@@ -40,27 +36,46 @@ export const wishlistSlice = createSlice({
   initialState,
   reducers: {
     addToWishlist: (state, action: PayloadAction<WishlistProduct>) => {
+      if (!action.payload || !action.payload.id) return;
       const exists = state.items.some((item) => item.id === action.payload.id);
       if (!exists) {
-        state.items.push(action.payload);
+        state.items.push({
+          ...action.payload,
+          image: action.payload.image || action.payload.images?.[0] || "",
+        });
       }
     },
     removeFromWishlist: (state, action: PayloadAction<string>) => {
+      if (!action.payload) return;
       state.items = state.items.filter((item) => item.id !== action.payload);
     },
     toggleWishlist: (state, action: PayloadAction<WishlistProduct>) => {
+      if (!action.payload || !action.payload.id) return;
       const index = state.items.findIndex(
         (item) => item.id === action.payload.id
       );
       if (index >= 0) {
         state.items.splice(index, 1);
       } else {
-        state.items.push(action.payload);
+        state.items.push({
+          ...action.payload,
+          image: action.payload.image || action.payload.images?.[0] || "",
+        });
       }
     },
     clearWishlist: (state) => {
       state.items = [];
     },
+    setWishlistState: (state, action: PayloadAction<WishlistState>) => {
+      state.items = action.payload.items;
+    },
+  },
+  extraReducers: (builder) => {
+    builder.addCase(deleteProduct, (state, action) => {
+      const productId = action.payload.id;
+      if (!productId) return;
+      state.items = state.items.filter((item) => item.id !== productId);
+    });
   },
 });
 
@@ -69,12 +84,7 @@ export const {
   removeFromWishlist,
   toggleWishlist,
   clearWishlist,
+  setWishlistState,
 } = wishlistSlice.actions;
-
-export const selectWishlistItems = (state: RootState) => state.wishlist.items;
-export const selectWishlistCount = (state: RootState) =>
-  state.wishlist.items.length;
-export const selectIsInWishlist = (id: string) => (state: RootState) =>
-  state.wishlist.items.some((item) => item.id === id);
 
 export default wishlistSlice.reducer;
