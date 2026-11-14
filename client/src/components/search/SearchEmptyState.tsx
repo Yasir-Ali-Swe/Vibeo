@@ -1,6 +1,6 @@
 import { View, Text, Pressable } from "react-native";
 import { Search, PackageX, Sparkles } from "lucide-react-native";
-import { colors } from "@/theme";
+import { useTheme } from "@/theme";
 
 interface SearchEmptyStateProps {
   query: string;
@@ -20,6 +20,7 @@ export default function SearchEmptyState({
   query,
   onSuggestionPress,
 }: SearchEmptyStateProps) {
+  const { colors } = useTheme();
   const hasQuery = query.trim().length > 0;
 
   if (hasQuery) {
@@ -66,7 +67,7 @@ export default function SearchEmptyState({
       </View>
 
       {/* Quick shopping tip */}
-      <View className="bg-card/60 border border-border/80 rounded-md p-4">
+      <View className="bg-card/60 border border-border/80 rounded-lg p-4">
         <Text className="text-xs font-semibold text-foreground mb-1">
           Instant Discovery
         </Text>
