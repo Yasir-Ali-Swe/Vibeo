@@ -3,7 +3,7 @@ import { router } from "expo-router";
 
 import SectionHeader from "@/components/ui/SectionHeader";
 import ProductActionCard from "@/components/products/ProductActionCard";
-import { NEW_ARRIVALS } from "@/constants/products";
+import { useAppSelector, selectNewArrivalProducts } from "@/store";
 import type { Product } from "@/types/product";
 
 interface NewArrivalsProps {
@@ -12,11 +12,13 @@ interface NewArrivalsProps {
 }
 
 export default function NewArrivals({
-  products = NEW_ARRIVALS,
+  products,
   onViewAll,
 }: NewArrivalsProps) {
+  const storeProducts = useAppSelector(selectNewArrivalProducts);
+  const resolvedProducts = products ?? storeProducts;
   // Exactly 6 products = 3 rows in 2-column grid
-  const displayProducts = products.slice(0, 6);
+  const displayProducts = resolvedProducts.slice(0, 6);
 
   const handleViewAll = () => {
     if (onViewAll) {
