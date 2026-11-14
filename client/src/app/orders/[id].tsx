@@ -1,10 +1,11 @@
-import type { ReactNode } from "react";
 import { View, Text, ScrollView } from "react-native";
 import { Image } from "expo-image";
 import { useLocalSearchParams } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { MapPin, CreditCard, XCircle, PackageX } from "lucide-react-native";
 
+import Card from "@/components/ui/Card";
+import SummaryRow from "@/components/ui/SummaryRow";
 import StatusBadge from "@/components/ui/StatusBadge";
 import OrderTracker from "@/components/orders/OrderTracker";
 import { useAppSelector, selectOrderById } from "@/store";
@@ -12,76 +13,6 @@ import { useTheme, radius } from "@/theme";
 import { formatOrderDate } from "@/utils/date";
 import { withAlpha } from "@/utils/color";
 import { formatPrice } from "@/utils/format";
-
-function Card({ title, children }: { title?: string; children: ReactNode }) {
-  const { colors } = useTheme();
-
-  return (
-    <View style={{ marginTop: 20 }}>
-      {title ? (
-        <Text
-          style={{
-            color: colors.muted.foreground,
-            fontSize: 12,
-            fontWeight: "700",
-            letterSpacing: 0.8,
-            textTransform: "uppercase",
-            marginBottom: 8,
-            marginLeft: 4,
-          }}
-        >
-          {title}
-        </Text>
-      ) : null}
-      <View
-        style={{
-          padding: 16,
-          borderRadius: radius.lg,
-          borderWidth: 1,
-          borderColor: colors.border.DEFAULT,
-          backgroundColor: colors.card.DEFAULT,
-        }}
-      >
-        {children}
-      </View>
-    </View>
-  );
-}
-
-function SummaryRow({
-  label,
-  value,
-  valueColor,
-  topSpace = true,
-}: {
-  label: string;
-  value: string;
-  valueColor?: string;
-  topSpace?: boolean;
-}) {
-  const { colors } = useTheme();
-
-  return (
-    <View
-      style={{
-        flexDirection: "row",
-        justifyContent: "space-between",
-        marginTop: topSpace ? 10 : 0,
-      }}
-    >
-      <Text style={{ color: colors.muted.foreground, fontSize: 13 }}>{label}</Text>
-      <Text
-        style={{
-          color: valueColor ?? colors.foreground.DEFAULT,
-          fontSize: 13,
-          fontWeight: "600",
-        }}
-      >
-        {value}
-      </Text>
-    </View>
-  );
-}
 
 export default function OrderDetailScreen() {
   const insets = useSafeAreaInsets();
