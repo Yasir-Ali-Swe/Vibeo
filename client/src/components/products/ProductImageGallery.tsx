@@ -11,7 +11,7 @@ import Animated, {
 } from "react-native-reanimated";
 import { ImageOff } from "lucide-react-native";
 
-import { colors } from "@/theme";
+import { useTheme } from "@/theme";
 
 interface ProductImageGalleryProps {
   images?: string[];
@@ -39,6 +39,7 @@ function Dot({
 }
 
 function Placeholder({ size, label }: { size: number; label: string }) {
+  const { colors } = useTheme();
   return (
     <View
       style={{ width: size, height: size }}
