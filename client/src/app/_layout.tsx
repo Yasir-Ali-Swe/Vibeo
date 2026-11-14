@@ -57,6 +57,7 @@ function RootStack() {
           contentStyle: { backgroundColor: colors.background },
         }}
       >
+        <Stack.Screen name="admin" options={{ headerShown: false }} />
         <Stack.Screen name="products" options={{ title: "Products" }} />
         <Stack.Screen name="products/[id]" options={{ title: "Product Details" }} />
         <Stack.Screen name="search" options={{ title: "Search" }} />
