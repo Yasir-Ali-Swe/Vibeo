@@ -6,7 +6,12 @@ import { PackageOpen } from "lucide-react-native";
 
 import OrderCard from "@/components/orders/OrderCard";
 import OrderStatusFilter from "@/components/orders/OrderStatusFilter";
-import { useAppSelector, selectOrders, selectOrdersCounts } from "@/store";
+import {
+  useAppSelector,
+  selectCurrentUser,
+  selectCustomerOrders,
+  selectCustomerOrdersCounts,
+} from "@/store";
 import { useTheme, radius } from "@/theme";
 import type { Order } from "@/types/order";
 import { STATUS_META, type FilterKey } from "@/utils/orders";
@@ -16,8 +21,9 @@ export default function OrdersScreen() {
   const { colors } = useTheme();
   const [filter, setFilter] = useState<FilterKey>("all");
 
-  const orders = useAppSelector(selectOrders);
-  const counts = useAppSelector(selectOrdersCounts);
+  const currentUser = useAppSelector(selectCurrentUser);
+  const orders = useAppSelector(selectCustomerOrders(currentUser.id));
+  const counts = useAppSelector(selectCustomerOrdersCounts(currentUser.id));
 
   const data = useMemo(
     () => (filter === "all" ? orders : orders.filter((o: Order) => o.status === filter)),
