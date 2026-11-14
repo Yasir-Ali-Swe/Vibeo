@@ -44,7 +44,7 @@ export default function ProductPrice({
       )}
 
       {isDiscounted && percent > 0 && (
-        <View className="rounded-md bg-success/15 px-2 py-0.5">
+        <View className="rounded-full bg-success/15 px-2 py-0.5">
           <Text className="text-[11px] font-bold text-success">{percent}% OFF</Text>
         </View>
       )}
