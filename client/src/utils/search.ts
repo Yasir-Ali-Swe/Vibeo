@@ -1,4 +1,4 @@
-import { PRODUCTS } from "@/constants/products";
+import { store } from "@/store";
 import type { Product, ProductSearchSuggestion } from "@/types/product";
 
 /**
@@ -7,7 +7,8 @@ import type { Product, ProductSearchSuggestion } from "@/types/product";
  */
 export async function searchProducts(
   query: string,
-  limit: number = 20
+  limit: number = 20,
+  productsList?: Product[]
 ): Promise<ProductSearchSuggestion[]> {
   const cleanQuery = query.trim().toLowerCase();
 
@@ -15,8 +16,8 @@ export async function searchProducts(
     return [];
   }
 
-  // Simulate a slight network latency if desired, or return synchronously resolved promise
-  const matches = PRODUCTS.filter((product: Product) => {
+  const pool = productsList ?? store.getState().products?.products ?? [];
+  const matches = pool.filter((product: Product) => {
     const nameMatch = product.name.toLowerCase().includes(cleanQuery);
     const categoryMatch = product.category?.toLowerCase().includes(cleanQuery);
     const tagMatch = product.tags?.some((tag) =>
