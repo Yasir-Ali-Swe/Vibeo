@@ -17,10 +17,12 @@ export interface Product {
   discountPercent?: number;
   rating?: number;
   reviewsCount?: number;
+  /** @deprecated Use `reviewsCount` instead */
   ratingCount?: number;
   category?: string;
   categoryId?: string;
   badge?: string;
+  /** @deprecated Use `isNewArrival` instead */
   isNew?: boolean;
   isNewArrival?: boolean;
   isFeatured?: boolean;
