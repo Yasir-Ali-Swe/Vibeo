@@ -1,6 +1,6 @@
 import { View, Text, Pressable } from "react-native";
 import { Minus, Plus } from "lucide-react-native";
-import { colors } from "@/theme";
+import { useTheme } from "@/theme";
 
 interface ProductQuantitySelectorProps {
   quantity: number;
@@ -15,18 +15,18 @@ export default function ProductQuantitySelector({
   onIncrease,
   onDecrease,
 }: ProductQuantitySelectorProps) {
+  const { colors } = useTheme();
   const isMin = quantity <= 1;
   const isMax = Boolean(maxQuantity && quantity >= maxQuantity);
 
   return (
-    <View className="flex-row items-center bg-card border border-border rounded-xl p-1">
+    <View className="flex-row items-center bg-card border border-border rounded-md p-1">
       {/* Decrement button */}
       <Pressable
         disabled={isMin}
         onPress={onDecrease}
-        className={`w-9 h-9 rounded-lg items-center justify-center ${
-          isMin ? "opacity-30" : "active:bg-surface-elevated"
-        }`}
+        className={`w-9 h-9 rounded-sm items-center justify-center ${isMin ? "opacity-30" : "active:bg-surface-elevated"
+          }`}
         accessibilityRole="button"
         accessibilityLabel="Decrease quantity"
       >
@@ -42,9 +42,8 @@ export default function ProductQuantitySelector({
       <Pressable
         disabled={isMax}
         onPress={onIncrease}
-        className={`w-9 h-9 rounded-lg items-center justify-center ${
-          isMax ? "opacity-30" : "active:bg-surface-elevated"
-        }`}
+        className={`w-9 h-9 rounded-sm items-center justify-center ${isMax ? "opacity-30" : "active:bg-surface-elevated"
+          }`}
         accessibilityRole="button"
         accessibilityLabel="Increase quantity"
       >
