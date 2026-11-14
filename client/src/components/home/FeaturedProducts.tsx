@@ -3,7 +3,7 @@ import { router } from "expo-router";
 
 import SectionHeader from "@/components/ui/SectionHeader";
 import FeaturedProductCard from "@/components/products/FeaturedProductCard";
-import { FEATURED_PRODUCTS } from "@/constants/products";
+import { useAppSelector, selectFeaturedProducts } from "@/store";
 import type { Product } from "@/types/product";
 
 interface FeaturedProductsProps {
@@ -12,9 +12,11 @@ interface FeaturedProductsProps {
 }
 
 export default function FeaturedProducts({
-  products = FEATURED_PRODUCTS,
+  products,
   onViewAll,
 }: FeaturedProductsProps) {
+  const storeProducts = useAppSelector(selectFeaturedProducts);
+  const resolvedProducts = products ?? storeProducts;
   const handleViewAll = () => {
     if (onViewAll) {
       onViewAll();
@@ -38,7 +40,7 @@ export default function FeaturedProducts({
 
       {/* Horizontal Carousel */}
       <FlatList
-        data={products}
+        data={resolvedProducts}
         keyExtractor={(item) => item.id}
         renderItem={({ item }) => <FeaturedProductCard product={item} />}
         horizontal
