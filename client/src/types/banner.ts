@@ -1,3 +1,5 @@
+import type { Href } from "expo-router";
+
 export interface HeroSlideItem {
   id: string;
   tag?: string;
@@ -6,7 +8,7 @@ export interface HeroSlideItem {
   description: string;
   ctaText: string;
   image: string;
-  route: string;
+  route: Href;
   category?: string;
 }
 
@@ -15,6 +17,7 @@ export interface HeroSlideProps {
   width: number;
   onPress: () => void;
 }
+
 export interface HeroSliderProps {
   slides?: HeroSlideItem[];
   autoPlayInterval?: number;
