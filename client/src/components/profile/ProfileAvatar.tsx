@@ -3,7 +3,7 @@ import { Image } from "expo-image";
 import * as ImagePicker from "expo-image-picker";
 import { Camera, User } from "lucide-react-native";
 
-import { colors } from "@/theme";
+import { useTheme, radius } from "@/theme";
 
 interface ProfileAvatarProps {
     uri?: string | null;
@@ -16,6 +16,7 @@ export default function ProfileAvatar({
     onChange,
     size = 112,
 }: ProfileAvatarProps) {
+    const { colors } = useTheme();
     const pickImage = async () => {
         const result = await ImagePicker.launchImageLibraryAsync({
             mediaTypes: ["images"],
@@ -40,7 +41,7 @@ export default function ProfileAvatar({
                 style={{
                     width: size,
                     height: size,
-                    borderRadius: size / 2,
+                    borderRadius: radius.full,
                     overflow: "hidden",
                     alignItems: "center",
                     justifyContent: "center",
@@ -69,7 +70,7 @@ export default function ProfileAvatar({
                     bottom: 0,
                     width: 34,
                     height: 34,
-                    borderRadius: 17,
+                    borderRadius: radius.full,
                     alignItems: "center",
                     justifyContent: "center",
                     backgroundColor: colors.primary.DEFAULT,
