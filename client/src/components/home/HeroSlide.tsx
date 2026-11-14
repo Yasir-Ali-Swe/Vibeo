@@ -1,7 +1,6 @@
 import { memo } from "react";
 import { View, Text, Pressable, StyleSheet } from "react-native";
 import { Image } from "expo-image";
-import { LinearGradient } from "expo-linear-gradient";
 import { ArrowRight } from "lucide-react-native";
 
 import type { HeroSlideProps } from "@/types/banner";
