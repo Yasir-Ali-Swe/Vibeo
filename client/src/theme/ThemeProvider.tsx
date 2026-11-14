@@ -7,11 +7,17 @@ import {
     useState,
     type ReactNode,
 } from "react";
+import { View } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import * as SplashScreen from "expo-splash-screen";
+import { vars, colorScheme } from "nativewind";
 
 import { colors as darkColors } from "./colors";
 import { lightColors } from "./light";
 import type { Palette } from "./palette";
+import { getCssVariablesForPalette } from "./tokens";
+
+void SplashScreen.preventAutoHideAsync().catch(() => {});
 
 export type ThemeMode = "light" | "dark";
 
@@ -69,10 +75,33 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
         [mode, setMode, toggleTheme]
     );
 
-    // Avoid a flash of the wrong theme while the saved choice loads
-    if (!ready) return null;
+    useEffect(() => {
+        colorScheme.set(mode);
+    }, [mode]);
 
-    return <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>;
+    useEffect(() => {
+        if (ready) {
+            void SplashScreen.hideAsync().catch(() => {});
+        }
+    }, [ready]);
+
+    const themeVars = useMemo(() => {
+        const activePalette = mode === "dark" ? darkColors : lightColors;
+        return vars(getCssVariablesForPalette(activePalette));
+    }, [mode]);
+
+    // Avoid a flash of the wrong theme while the saved choice loads
+    if (!ready) {
+        return <View style={{ flex: 1, backgroundColor: darkColors.background }} />;
+    }
+
+    return (
+        <ThemeContext.Provider value={value}>
+            <View style={[{ flex: 1, backgroundColor: value.colors.background }, themeVars]}>
+                {children}
+            </View>
+        </ThemeContext.Provider>
+    );
 }
 
 export function useTheme() {
