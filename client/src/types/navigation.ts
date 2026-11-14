@@ -14,3 +14,7 @@ export interface ProductDetailRouteParams {
 export interface SearchRouteParams {
   initialQuery?: string;
 }
+
+export interface OrderDetailRouteParams {
+  id: string;
+}
