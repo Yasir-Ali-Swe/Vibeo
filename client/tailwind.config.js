@@ -1,4 +1,5 @@
-const { colors } = require("./src/theme/colors");
+const { tailwindColors } = require("./src/theme/tokens");
+const { tailwindBorderRadius } = require("./src/theme/radius");
 
 /** @type {import('tailwindcss').Config} */
 module.exports = {
@@ -8,7 +9,8 @@ module.exports = {
 
   theme: {
     extend: {
-      colors,
+      colors: tailwindColors,
+      borderRadius: tailwindBorderRadius,
     },
   },
 
