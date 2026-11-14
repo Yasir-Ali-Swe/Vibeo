@@ -1,7 +1,7 @@
 import { createSlice, type PayloadAction } from "@reduxjs/toolkit";
-import type { CartState } from "@/types/cart";
+import type { CartItem, CartState } from "@/types/cart";
 import type { Product, SelectedVariants } from "@/types/product";
-import type { RootState } from "./index";
+import { deleteProduct } from "./productsSlice";
 
 const initialState: CartState = {
   items: [
@@ -23,13 +23,15 @@ const initialState: CartState = {
   discount: 0,
 };
 
-function areVariantsEqual(v1?: SelectedVariants, v2?: SelectedVariants): boolean {
-  if (!v1 && !v2) return true;
-  if (!v1 || !v2) return false;
-  const k1 = Object.keys(v1);
-  const k2 = Object.keys(v2);
-  if (k1.length !== k2.length) return false;
-  return k1.every((key) => v1[key] === v2[key]);
+export function getCartLineId(productId: string, selectedVariants?: SelectedVariants): string {
+  if (!selectedVariants || Object.keys(selectedVariants).length === 0) {
+    return productId;
+  }
+  const serialized = Object.entries(selectedVariants)
+    .sort(([a], [b]) => a.localeCompare(b))
+    .map(([k, v]) => `${k}=${v}`)
+    .join(";");
+  return `${productId}::${serialized}`;
 }
 
 export const cartSlice = createSlice({
@@ -41,35 +43,49 @@ export const cartSlice = createSlice({
       action: PayloadAction<{ product: Product; quantity?: number; selectedVariants?: SelectedVariants } | Product>
     ) => {
       const payload = action.payload;
+      if (!payload) return;
       const product = "product" in payload ? payload.product : payload;
+      if (!product || !product.id) return;
+
+      // Do not add if explicitly out of stock
+      if (product.inStock === false || product.stock === 0) {
+        return;
+      }
+
       const quantityToAdd = "product" in payload && payload.quantity ? payload.quantity : 1;
       const selectedVariants = "product" in payload ? payload.selectedVariants : undefined;
 
-      // Find an item matching base product ID AND the exact same selected variants
-      const existing = state.items.find(
-        (item) =>
-          (item.id === product.id || item.id.startsWith(`${product.id}::`)) &&
-          areVariantsEqual(item.selectedVariants, selectedVariants)
-      );
+      const lineId = getCartLineId(product.id, selectedVariants);
+      const existing = state.items.find((item) => item.id === lineId);
+      const stockLimit = product.stock !== undefined && product.stock > 0 ? product.stock : 20;
 
       if (existing) {
-        existing.quantity += quantityToAdd;
+        // Respect the stock limit when increasing quantity
+        existing.quantity = Math.min(stockLimit, existing.quantity + quantityToAdd);
       } else {
-        const hasVariants = selectedVariants && Object.keys(selectedVariants).length > 0;
-        const lineId = hasVariants
-          ? `${product.id}::${Object.entries(selectedVariants).sort().map(([k, v]) => `${k}=${v}`).join(";")}`
-          : product.id;
-
-        state.items.push({
+        const image = product.image || product.images?.[0] || "";
+        const item: CartItem = {
           ...product,
           id: lineId,
-          quantity: quantityToAdd,
+          image,
+          quantity: Math.min(stockLimit, Math.max(1, quantityToAdd)),
           selectedVariants,
-        });
+        };
+        state.items.push(item);
       }
     },
     removeFromCart: (state, action: PayloadAction<string>) => {
       state.items = state.items.filter((item) => item.id !== action.payload);
+      if (state.items.length === 0) {
+        state.discount = 0;
+      }
+    },
+    removeProductFromCart: (state, action: PayloadAction<string>) => {
+      const productId = action.payload;
+      if (!productId) return;
+      state.items = state.items.filter(
+        (item) => item.id !== productId && !item.id.startsWith(`${productId}::`)
+      );
       if (state.items.length === 0) {
         state.discount = 0;
       }
@@ -79,14 +95,12 @@ export const cartSlice = createSlice({
       action: PayloadAction<{ id: string; quantity: number }>
     ) => {
       const { id, quantity } = action.payload;
-      if (quantity <= 0) {
-        state.items = state.items.filter((item) => item.id !== id);
-      } else {
-        const item = state.items.find((i) => i.id === id);
-        if (item) {
-          item.quantity = quantity;
-        }
-      }
+      const item = state.items.find((i) => i.id === id);
+      if (!item) return;
+
+      const stockLimit = item.stock !== undefined && item.stock > 0 ? item.stock : 20;
+      // Quantity can never go below 1 via update (removal is a separate action)
+      item.quantity = Math.max(1, Math.min(stockLimit, quantity));
     },
     applyDiscount: (state, action: PayloadAction<number>) => {
       state.discount = action.payload;
@@ -95,33 +109,33 @@ export const cartSlice = createSlice({
       state.items = [];
       state.discount = 0;
     },
+    setCartState: (state, action: PayloadAction<CartState>) => {
+      state.items = action.payload.items;
+      state.discount = action.payload.discount;
+    },
+  },
+  extraReducers: (builder) => {
+    builder.addCase(deleteProduct, (state, action) => {
+      const productId = action.payload.id;
+      if (!productId) return;
+      state.items = state.items.filter(
+        (item) => item.id !== productId && !item.id.startsWith(`${productId}::`)
+      );
+      if (state.items.length === 0) {
+        state.discount = 0;
+      }
+    });
   },
 });
 
 export const {
   addToCart,
   removeFromCart,
+  removeProductFromCart,
   updateQuantity,
   applyDiscount,
   clearCart,
+  setCartState,
 } = cartSlice.actions;
-
-export const selectCartItems = (state: RootState) => state.cart.items;
-export const selectCartCount = (state: RootState) =>
-  state.cart.items.reduce((total, item) => total + item.quantity, 0);
-export const selectCartTotalCount = selectCartCount;
-export const selectCartSubtotal = (state: RootState) =>
-  state.cart.items.reduce((total, item) => total + item.price * item.quantity, 0);
-export const selectCartDiscount = (state: RootState) => state.cart.discount;
-export const selectCartTotal = (state: RootState) => {
-  const subtotal = state.cart.items.reduce(
-    (total, item) => total + item.price * item.quantity,
-    0
-  );
-  return Math.max(0, subtotal - state.cart.discount);
-};
-export const selectCartTotalAmount = selectCartTotal;
-export const selectIsInCart = (id: string) => (state: RootState) =>
-  state.cart.items.some((item) => item.id === id || item.id.startsWith(`${id}::`));
 
 export default cartSlice.reducer;
