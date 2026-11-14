@@ -1,6 +1,6 @@
 import { View, Text, Pressable } from "react-native";
 import type { ProductVariant, SelectedVariants } from "@/types/product";
-import { colors } from "../../theme/colors";
+import { useTheme } from "@/theme";
 
 interface ProductVariantPickerProps {
   variants?: ProductVariant[];
@@ -19,6 +19,7 @@ export default function ProductVariantPicker({
   onSelectOption,
   unselectedErrors = [],
 }: ProductVariantPickerProps) {
+  const { colors } = useTheme();
   if (!variants || variants.length === 0) return null;
 
   return (
@@ -70,7 +71,7 @@ export default function ProductVariantPicker({
                       height: 44,
                       paddingHorizontal: 16,
                     }}
-                    className={`items-center justify-center rounded-xl border ${isSelected
+                    className={`items-center justify-center rounded-md border ${isSelected
                       ? "border-primary bg-primary"
                       : hasError
                         ? "border-destructive/60 bg-card"
